@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="e98c1ff4-5812-44b4-bd3c-f62b075bba39" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="bd4c81a7-f9f4-4fe7-bfd4-9340f67fdece" basePath="/errorhandling" />
+	<http:request-config name="HTTP_Request_configuration1" doc:name="HTTP Request configuration" doc:id="75e78730-c835-4d01-a3f6-a5b0b8348159" >
+		<http:request-connection host="8081" />
+	</http:request-config>
+	<flow name="error_handlingFlow" doc:id="20b060ca-5452-4e57-8be1-b5dd861c167d" >
+		<http:listener doc:name="Listener" doc:id="fd4dd7a2-ec92-4b7b-8554-db36c0a88d05" config-ref="HTTP_Listener_config" path="/errorhandling"/>
+		<set-payload value="#[payload]" doc:name="Set Payload" doc:id="fa552eb9-3f34-4df8-aad8-7e6e2de4e6f2" />
+		<flow-ref doc:name="Flow Reference" doc:id="9415044b-9fd7-4002-a3bd-893f9df1ccdb" name="error_handlingFlow"/>
+		<set-payload value="#[pay]" doc:name="Set Payload" doc:id="ebb6c60e-ea3a-4420-b1c4-6ad7ef371090" />
+		<error-handler>
+			<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="b3a18835-3db4-4d9a-a11a-ffc6c541da0b" >
+				<set-payload value='#["hello"]' doc:name="Set Payload" doc:id="f0fe9091-db64-4a69-9042-691ab503b90e" />
+			</on-error-continue>
+		</error-handler>
+	</flow>
+	<sub-flow name="error_handlingSub_Flow" doc:id="4fb50cdd-b0d4-495a-9a3a-b0374f6865aa" >
+		<set-payload value="#[pay]" doc:name="Set Payload" doc:id="37e4f275-6252-433a-af0e-e607f893896a" />
+	</sub-flow>
+	<flow name="error_handlingFlow1" doc:id="9a62062b-653f-4394-9e5e-3676c590e439" >
+		<http:listener doc:name="Listener" doc:id="6988dc29-fc70-48a5-a5a9-3ec875c4f223" config-ref="HTTP_Listener_config" path="/errorhandling"/>
+		<flow-ref doc:name="Flow Reference" doc:id="f89648a9-be8b-4bba-a175-876e1ecdc9eb" name="error_handlingSub_Flow"/>
+		<set-payload value="#[payload]" doc:name="Set Payload" doc:id="9a45f20c-20bb-4100-bf9f-b9438c9a6ad3" />
+	</flow>
+	<flow name="error_handlingFlow2" doc:id="01d918e1-f3ee-4591-9a8e-3d84e0b92eda" initialState="stopped">
+		<http:request method="DELETE" doc:name="Request" doc:id="a6feb473-8635-487d-bf7d-75b20f778a3b" config-ref="HTTP_Request_configuration1" path="http://calculator-webservice.mybluemix.net/calculator?wsdl"/>
+		<set-payload value='#["private flow"]' doc:name="Set Payload" doc:id="51a2afaa-0349-4744-97e1-ecc822fd196a" />
+		<error-handler >
+			<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="1ebcb88c-987c-474b-bf7f-c89f7852e3f9" type="ANY">
+				<set-payload value='#["error handled"]' doc:name="Set Payload" doc:id="a4b4a2b5-86a2-4d2a-8d2b-57d8658e208a" />
+			</on-error-continue>
+		</error-handler>
+	</flow>
+</mule>
