@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="897b77e3-3bb7-423a-accf-02f79c0cb073" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<flow name="error-handlingFlow" doc:id="de930bfa-a089-4270-b232-8d3c1fdafb4c" >
+		<http:listener doc:name="Listener" doc:id="f5ffafee-3dc7-400c-b208-100801a4d637" config-ref="HTTP_Listener_config" path="/subflow"/>
+		<set-payload value='#["I am in main flow"]' doc:name="Set Payload" doc:id="1484af31-54d0-43c4-9785-5dde840ec3a2" />
+		<flow-ref doc:name="Flow Reference" doc:id="fd07be5f-87ed-448f-b308-4a122e984f7e" name="error-handlingFlow"/>
+		<set-payload value='#["I am in main flow"]' doc:name="Set Payload" doc:id="dca606b9-b502-4160-b7b4-f59e4173327d" />
+	</flow>
+	<sub-flow name="error-handlingSub_Flow" doc:id="af5520fb-8c03-4487-ae9b-0500f9141949" >
+		<set-payload value='#[" I am in main flow"]' doc:name="Set Payload" doc:id="45ad704a-2a92-48b9-b014-a02b385b3a60" />
+	</sub-flow>
+</mule>

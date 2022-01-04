@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="errorhandling-suite.xml" />
+	<munit:test name="errorhandlingFlow3-success" doc:id="4f42bca9-a4e7-4f28-bb7c-55264a50cc5e" >
+		<munit:behavior >
+			<munit:set-event doc:name="Set Input" doc:id="156d4647-2efd-40b7-9cea-9d8c0b406d3a" >
+				<munit:payload value="#[readUrl('classpath://errorhandlingFlow3success\set-event_payload.dwl')]" encoding="UTF-8" />
+				<munit:attributes value="#[readUrl('classpath://errorhandlingFlow3success\set-event_attributes.dwl')]" />
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to errorhandlingFlow3" doc:id="18f1fdc0-6fd8-4136-904b-637060ba392c" name="errorhandlingFlow3"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert payload" doc:id="7733cda7-82bc-4913-90af-d8f8f026a14c" message="The payload does not match">
+				<munit-tools:that ><![CDATA[#[%dw 2.0
+import errorhandlingFlow3success::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="errorhandlingFlow4-success" doc:id="778955a5-7370-41c8-8c5e-9ab0c87aaeb9" >
+		<munit:behavior >
+			<munit:set-event doc:name="Set Input" doc:id="15ddb007-b8d5-4e2b-9080-7a44187e7521" >
+				<munit:payload value="#[readUrl('classpath://errorhandlingFlow4success\set-event_payload.dwl')]" encoding="UTF-8" />
+				<munit:attributes value="#[readUrl('classpath://errorhandlingFlow4success\set-event_attributes.dwl')]" />
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to errorhandlingFlow4" doc:id="23fffa87-d090-41f3-b0a3-a0e39be0bb63" name="errorhandlingFlow4"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert payload" doc:id="f7a1e50d-e26c-4fdc-af02-7ed7d2f8f53a" message="The payload does not match">
+				<munit-tools:that ><![CDATA[#[%dw 2.0
+import errorhandlingFlow4success::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+			<munit-tools:verify-call doc:name="Verify Set Payload" doc:id="5b3e0268-f217-4d55-9f0d-3bebda8a386b" processor="set-payload" times="1">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="dab0ccb3-e8f8-4f9e-9184-b19e6f93d2d4" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:verify-call>
+		</munit:validation>
+	</munit:test>
+
+
+</mule>

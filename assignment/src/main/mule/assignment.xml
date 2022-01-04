@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="58fce7cb-ce38-4d74-8cb8-ca9639521d02" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<http:listener-config name="HTTP_Listener_config1" doc:name="HTTP Listener config" doc:id="052582bf-16f1-49ed-b65c-f6439da02dd4" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<flow name="assignmentFlow" doc:id="ab814fa5-c809-4620-bb91-a521dac1de98" >
+		<http:listener doc:name="Listener" doc:id="4777d235-8a3e-4e2a-afb8-1f82d877e51c" config-ref="HTTP_Listener_config1" path="/test"/>
+		<http:request method="GET" doc:name="Request" doc:id="3745726e-3764-4d56-b42f-adbe327acf5e" url="https://api.github.com/users"/>
+		<ee:transform doc:name="Transform Message" doc:id="a5a3dc80-baf9-456a-b7e4-3fe540d43a08" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload map((item,index)->
+	{
+		"users":item.login,
+		"id":item.id
+	}
+)]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="5119bf53-83df-4fed-a001-9558cc2ae29f" message="#[payload]"/>
+	</flow>
+</mule>

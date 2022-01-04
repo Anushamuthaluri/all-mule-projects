@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:validation="http://www.mulesoft.org/schema/mule/validation"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="5807ee84-51c2-49cd-9b42-e73a76ec5a06" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<validation:config name="Validation_Config" doc:name="Validation Config" doc:id="2755cc50-f5d1-4fc3-b7f7-34126409b5c7" />
+	<validation:config name="Validation_Config1" doc:name="Validation Config" doc:id="5e13c124-1553-48a2-a781-6d6391e99e79" />
+	<flow name="errorhandlingFlow" doc:id="d6e8fa44-304b-4112-a5d9-ee00608ba588" >
+		<http:listener doc:name="Listener" doc:id="bfd7b193-570c-4164-af2c-7477d22c143b" config-ref="HTTP_Listener_config" path="/error"/>
+		<set-payload value="error" doc:name="Set Payload" doc:id="46fcd110-7f0f-483e-bd93-f354a4456624" />
+		<flow-ref doc:name="Flow Reference" doc:id="6cdce557-6901-4a1a-b9e3-340b1051b571" name="errorhandlingFlow1"/>
+		<set-payload value="payload" doc:name="Set Payload" doc:id="6259931e-f6b6-4ae6-8b00-af04ed6ee8de" />
+		<error-handler >
+			<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="f1a1a795-2adf-436c-bf0e-347f61229632" type="HTTP:CONNECTIVITY">
+				<set-payload value="error" doc:name="Set Payload" doc:id="f8484879-7f82-4866-b74f-fb88b043c47f" />
+			</on-error-continue>
+		</error-handler>
+	</flow>
+	<flow name="errorhandlingFlow1" doc:id="f693f49a-bde3-4b3c-822f-9c5e5cea1232" >
+		<http:request method="GET" doc:name="Request" doc:id="99c1cc80-a452-46d7-8913-0cd0afd95d84" url="kjsdf/kjk"/>
+		<ee:transform doc:name="Transform Message" doc:id="44e14f4b-c498-4d99-b6ef-df57259944b4" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+
+}
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="errorhandlingFlow2" doc:id="3d0b6a71-e6df-4fe6-aa67-b24bf1ae71d3" >
+		<http:listener doc:name="Listener" doc:id="6c3cedd9-c28e-418f-9811-0af8e4c1aede" config-ref="HTTP_Listener_config" path="/raise"/>
+		<choice doc:name="Choice" doc:id="b722a24f-cf1b-4fe0-b078-d1b776c33c33" >
+			<when expression="#[isEmpty(payload)]">
+				<raise-error doc:name="Raise error" doc:id="25a353fd-d60d-451d-8280-a9959827a051" type="NO:PAYLOAD" description="NO PAYLOAD WAS RECEIVED"/>
+			</when>
+			<otherwise >
+				<ee:transform doc:name="Transform Message" doc:id="10e84f7d-c914-4a4f-9072-68d39cff94be" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+response : payload]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</otherwise>
+		</choice>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="545f7ee1-5c8e-4dff-9e6d-1c828cdd8db8" type="ANY">
+				<ee:transform doc:name="Transform Message" doc:id="fb3e4287-4803-45f2-bdcd-bcb25f9bb5c5" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+"NO PAYLOAD IS FOUND"]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+	<flow name="errorhandlingFlow3" doc:id="a9cf8688-010a-4ce3-83bc-691bd4df15a7" >
+		<http:listener doc:name="Listener" doc:id="99ae3ace-a2b7-46c7-9428-2e9fe2fa4c81" config-ref="HTTP_Listener_config" path="/errorcontinue"/>
+		<set-payload value='5000' doc:name="Set Payload" doc:id="d30d8626-ab9e-4d68-9041-909aaa5f6802" />
+		<try doc:name="Try" doc:id="b4d5bd6b-21e1-4ed1-b250-00cd69e82375" >
+			<validation:is-number numberType="INTEGER" doc:name="Is number" doc:id="62291b88-1b77-46c8-833d-c8f8c074e8ac" config-ref="Validation_Config1" value="#[payload]" minValue="1000" maxValue="5000"/>
+			<error-handler >
+				<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="91f19f04-c54a-4d3a-9437-0f9aa3d69823" type="VALIDATION:INVALID_NUMBER">
+					<set-payload value='#["error handled inside"]' doc:name="Set Payload" doc:id="c4503088-38bc-46aa-9bed-b110f5bc11d5" />
+				</on-error-continue>
+			</error-handler>
+		</try>
+		<ee:transform doc:name="Transform Message" doc:id="d1518acc-fb6b-4bd9-8e56-02d0f8836d08">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="errorhandlingFlow4" doc:id="f3e195ad-a382-45e4-b9cd-7f7353d163dc" >
+		<http:listener doc:name="Listener" doc:id="b7b03c65-1019-4ae3-9593-0e3856ab1055" config-ref="HTTP_Listener_config" path="/munit"/>
+		<set-payload value="#[payload]" doc:name="Set Payload" doc:id="dab0ccb3-e8f8-4f9e-9184-b19e6f93d2d4" />
+		<ee:transform doc:name="Transform Message" doc:id="d534bfff-7367-4f3d-a36b-7296246fec87" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="293d1829-6632-4249-8b22-9f885528ce74" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<flow name="errorhandlingtryFlow" doc:id="6ab6f5a8-4bf2-45dc-aedb-d0c3531d9a0d" >
+		<http:listener doc:name="Listener" doc:id="7c4df3de-4f36-4c2f-bccb-3c5014833a80" config-ref="HTTP_Listener_config" path="/try"/>
+		<flow-ref doc:name="Flow Reference" doc:id="bdfb5b5a-b417-4144-bd68-db11ca750085" name="errorhandlingtryFlow"/>
+		<set-payload value="#[payload]" doc:name="Set Payload" doc:id="dbcf392e-9011-4e10-882a-23b56bcbcf86" />
+	</flow>
+	<flow name="errorhandlingtryFlow1" doc:id="b72fb4c1-a13f-4be3-bc06-065d9f51a68d" >
+		<try doc:name="Try" doc:id="29ccd8da-c89a-4986-8084-b2e7720857bf" >
+			<set-payload value="#[payload]" doc:name="Set Payload" doc:id="68c05a26-8973-47e9-a81a-2a8759970773" />
+		</try>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="9edd5d33-6ed0-4980-a93e-a5cd4e084128" type="EXPRESSION">
+				<set-payload value="#[payload]" doc:name="Set Payload" doc:id="3d09d7ad-d2cf-46f8-a8e5-3060fa5471d9" />
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+</mule>
