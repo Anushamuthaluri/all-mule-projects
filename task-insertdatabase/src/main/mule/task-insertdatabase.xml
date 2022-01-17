@@ -1,14 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:http="http://www.mulesoft.org/schema/mule/http"
-	xmlns="http://www.mulesoft.org/schema/mule/core"
-	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:batch="http://www.mulesoft.org/schema/mule/batch"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
-http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
 	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="47ea319e-9251-427a-90f6-1689ba19ceb7" >
 		<http:listener-connection host="0.0.0.0" port="8081" />
 	</http:listener-config>
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="6a131b6a-2ef2-4adf-a4a5-b3b2d076c23a" >
+		<db:my-sql-connection host="localhost" port="3306" user="root" password="root" database="newdb" />
+	</db:config>
+	<flow name="task-insertdatabaseFlow1" doc:id="e2550ad1-1976-4fa4-96cc-23fa2b97a407" >
+		<http:listener doc:name="Listener" doc:id="790772a7-0c78-422c-8d31-5fd339e23c7a" config-ref="HTTP_Listener_config" path="/insert"/>
+		<db:insert doc:name="Insert" doc:id="d7f8a7b1-0ca7-4b50-92bf-d70fcae4fefd" config-ref="Database_Config">
+			<db:sql ><![CDATA[insert into newdb.customer(name,mobile,id) values('anusha',99999,1245);]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+      name:payload.name,
+      mobile:payload.mobile,
+      id:payload.id
+      }]]]></db:input-parameters>
+		</db:insert>
+		<logger level="INFO" doc:name="Logger" doc:id="c72e42a2-39f4-4d7a-8fff-c09529498c05" message="#[payload]"/>
+	</flow>
 	<flow name="task-insertdatabaseFlow" doc:id="bb27b66a-149a-42d8-86bc-66b2a622fa09" >
-		<http:listener doc:name="Listener" doc:id="65e3a586-d2f6-408d-8928-b205023a0c2d" config-ref="HTTP_Listener_config" path="/insertdatabase"/>
+		<http:listener doc:name="Listener" doc:id="65e3a586-d2f6-408d-8928-b205023a0c2d" config-ref="HTTP_Listener_config" path="/batch"/>
+		<batch:job jobName="task-insertdatabaseBatch_Job" doc:id="164ee2b9-f3aa-4642-891b-62b3af0bdf9b" >
+			<batch:process-records >
+				<batch:step name="Batch_Step" doc:id="6c826b7f-2fe1-4ae9-9c2b-862896792c71" >
+					<db:insert doc:name="Insert" doc:id="62b1d82f-94fe-4002-8e36-f207c4b86c32" config-ref="Database_Config">
+						<db:sql ><![CDATA[insert into newdb.customer(name,mobile,id) values('anusha',99999,1245);]]></db:sql>
+						<db:input-parameters ><![CDATA[#[{
+      name:payload.name,
+      mobile:payload.mobile,
+      id:payload.id
+      }]]]></db:input-parameters>
+					</db:insert>
+				</batch:step>
+			</batch:process-records>
+			<batch:on-complete>
+				<logger level="INFO" doc:name="Logger" doc:id="0b8b99f9-83ee-47e5-97d2-4a3a455ed1ca" />
+			</batch:on-complete>
+		</batch:job>
 	</flow>
 </mule>

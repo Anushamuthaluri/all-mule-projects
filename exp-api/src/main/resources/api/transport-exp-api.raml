@@ -1,0 +1,64 @@
+#%RAML 1.0
+title: transport-exp-api
+/booking:
+ /{transportType}:
+  /routes:
+    get:
+      headers:
+        transactionId:
+          required: true
+          minLength: 4
+          maxLength: 10
+      queryParameters:
+        companyname:
+          type: string
+          required: false
+        departureLocation:
+          type: string
+          required: false
+        destinationLocation:
+            type: string
+            required: false
+      responses:
+        200:
+          body:
+            application/json:
+              example: !include /Examples/routes.raml
+
+            
+  /schedules:
+    post:
+      headers:
+        transactionId:
+          required: true
+          minLength: 4
+          maxLength: 10
+      queryParameters:
+        companyname:
+          type: string
+          required: false
+        departureLocation:
+          type: string
+          required: false
+        destinationLocation:
+            type: string
+            required: false
+        requestTimeZone:
+              type: string
+              required: false  
+      responses:
+        200:
+          body:
+            application/json:
+              example: !include /Examples/schedules.raml            
+               
+
+
+
+
+        
+
+
+
+
+    
